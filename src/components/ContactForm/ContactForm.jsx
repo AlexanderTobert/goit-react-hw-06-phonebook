@@ -7,7 +7,6 @@ import { addContact } from '../../redux/contactsSlice';
 import { getContacts } from '../../redux/selectors';
 
 const ContactForm = () => {
-  
   const [formData, setFormData] = useState({ name: '', number: '' });
   const dispatch = useDispatch();
   const contacts = useSelector(getContacts);
@@ -16,11 +15,6 @@ const ContactForm = () => {
     event.preventDefault();
 
     const { name, number } = formData;
-
-    if (contacts.find && contacts.find(e => e.name === name)) {
-      Notify.warning(`${name} уже есть в контактах`);
-      return;
-    }
 
     if (isNaN(number)) {
       Notify.failure('Пожалуйста, введите корректный номер.');
@@ -32,6 +26,12 @@ const ContactForm = () => {
       return;
     }
 
+    const existingContact = contacts.find(contact => contact.name === name);
+    if (existingContact) {
+      Notify.failure(`Контакт ${name} уже существует.`);
+      return;
+    }
+
     const formattedData = {
       name,
       number: Number(number),
@@ -39,6 +39,7 @@ const ContactForm = () => {
     };
 
     dispatch(addContact(formattedData));
+    Notify.success(`${name} успешно добавлен в контакты`);
     setFormData({ name: '', number: '' });
   };
 
